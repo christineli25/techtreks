@@ -1,124 +1,133 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button, Card, Input, Overlay, ListItem } from '@rneui/themed';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Input, Button, Text, Card } from '@rneui/themed';
+import { MaterialIcons } from '@expo/vector-icons';
+import { colors, spacing, borderRadius } from '../constants/colors';
 
 const ChoresScreen = () => {
   const [chores, setChores] = useState([]);
-  const [isVisible, setIsVisible] = useState(false);
-  const [newChore, setNewChore] = useState({
-    title: '',
-    assignedTo: '',
-    dueDate: new Date().toISOString().split('T')[0],
-  });
+  const [choreName, setChoreName] = useState('');
+  const [assignee, setAssignee] = useState('You');
+  const [dueDate, setDueDate] = useState('');
 
-  const toggleOverlay = () => {
-    setIsVisible(!isVisible);
-    if (!isVisible) {
-      setNewChore({
-        title: '',
-        assignedTo: '',
-        dueDate: new Date().toISOString().split('T')[0],
-      });
-    }
-  };
-
-  const handleAddChore = () => {
-    if (newChore.title && newChore.assignedTo && newChore.dueDate) {
-      setChores([...chores, { ...newChore, id: Date.now() }]);
-      toggleOverlay();
-    } else {
+  const addChore = () => {
+    if (!choreName || !dueDate) {
       alert('Please fill in all fields');
+      return;
     }
+    setChores([...chores, { id: Date.now(), name: choreName, assignee, dueDate, completed: false }]);
+    setChoreName('');
+    setAssignee('You');
+    setDueDate('');
   };
 
-  const getRemainingTime = (dueDate) => {
-    const now = new Date();
-    const due = new Date(dueDate);
-    const diff = due - now;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return days >= 0 ? `${days} days left` : 'Overdue';
+  const toggleChore = (id) => {
+    setChores(chores.map(chore => chore.id === id ? { ...chore, completed: !chore.completed } : chore));
   };
 
-  const handleDeleteChore = (id) => {
+  const deleteChore = (id) => {
     setChores(chores.filter(chore => chore.id !== id));
   };
 
+  const myChores = chores.filter(c => c.assignee === 'You');
+  const othersChores = chores.filter(c => c.assignee !== 'You');
+  const pendingChores = chores.filter(c => !c.completed).length;
+
   return (
     <View style={styles.container}>
-      <Button
-        title="Add New Chore"
-        onPress={toggleOverlay}
-        containerStyle={styles.addButton}
-      />
-
-      <ScrollView>
-        {chores.map((chore) => (
-          <ListItem.Swipeable
-            key={chore.id}
-            rightContent={() => (
-              <Button
-                title="Delete"
-                onPress={() => handleDeleteChore(chore.id)}
-                buttonStyle={{ minHeight: '100%', backgroundColor: 'red' }}
-              />
-            )}
-          >
-            <ListItem.Content>
-              <ListItem.Title>{chore.title}</ListItem.Title>
-              <ListItem.Subtitle>
-                Assigned to: {chore.assignedTo} • {getRemainingTime(chore.dueDate)}
-              </ListItem.Subtitle>
-            </ListItem.Content>
-          </ListItem.Swipeable>
-        ))}
-      </ScrollView>
-
-      <Overlay isVisible={isVisible} onBackdropPress={toggleOverlay}>
-        <View style={styles.overlay}>
-          <Text h4>Add New Chore</Text>
-          <Input
-            placeholder="Chore Title"
-            value={newChore.title}
-            onChangeText={(text) => setNewChore({ ...newChore, title: text })}
-          />
-          <Input
-            placeholder="Assigned To"
-            value={newChore.assignedTo}
-            onChangeText={(text) => setNewChore({ ...newChore, assignedTo: text })}
-          />
-          <Input
-            placeholder="Due Date"
-            value={newChore.dueDate}
-            onChangeText={(text) => setNewChore({ ...newChore, dueDate: text })}
-          />
-          <Button title="Add Chore" onPress={handleAddChore} />
-          <Button
-            title="Cancel"
-            type="clear"
-            onPress={toggleOverlay}
-            containerStyle={styles.cancelButton}
-          />
+      <ScrollView style={styles.scrollView}>
+        {/* Stats */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statBox}>
+            <MaterialIcons name="assignment" size={24} color={colors.warning} />
+            <Text style={styles.statValue}>{pendingChores}</Text>
+            <Text style={styles.statLabel}>Pending</Text>
+          </View>
+          <View style={styles.statBox}>
+            <MaterialIcons name="person" size={24} color={colors.primary} />
+            <Text style={styles.statValue}>{myChores.length}</Text>
+            <Text style={styles.statLabel}>Your Chores</Text>
+          </View>
+          <View style={styles.statBox}>
+            <MaterialIcons name="people" size={24} color={colors.secondary} />
+            <Text style={styles.statValue}>{othersChores.length}</Text>
+            <Text style={styles.statLabel}>Roommates'</Text>
+          </View>
         </View>
-      </Overlay>
+
+        {/* Add Chore Form */}
+        <View style={styles.formContainer}>
+          <Text h4 style={styles.sectionTitle}>Add Chore</Text>
+          <Input placeholder="Chore name" value={choreName} onChangeText={setChoreName} leftIcon={<MaterialIcons name="add-task" size={20} color={colors.primary} />} containerStyle={styles.inputContainer} />
+          <Input placeholder="Assignee" value={assignee} onChangeText={setAssignee} containerStyle={styles.inputContainer} />
+          <Input placeholder="Due date (MM/DD)" value={dueDate} onChangeText={setDueDate} containerStyle={styles.inputContainer} />
+          <Button title="Add Chore" onPress={addChore} buttonStyle={styles.addButton} icon={<MaterialIcons name="add" size={20} color={colors.white} />} />
+        </View>
+
+        {/* Your Chores */}
+        {myChores.length > 0 && (
+          <View style={styles.sectionContainer}>
+            <Text h4 style={styles.sectionTitle}>My Chores</Text>
+            {myChores.map(chore => (
+              <Card key={chore.id} containerStyle={styles.choreCard}>
+                <View style={styles.choreRow}>
+                  <TouchableOpacity onPress={() => toggleChore(chore.id)}>
+                    <MaterialIcons name={chore.completed ? 'check-circle' : 'radio-button-unchecked'} size={24} color={chore.completed ? colors.success : colors.gray[300]} />
+                  </TouchableOpacity>
+                  <View style={styles.choreInfo}>
+                    <Text style={[styles.choreName, chore.completed && styles.completedText]}>{chore.name}</Text>
+                    <Text style={styles.choreDate}>{chore.dueDate}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => deleteChore(chore.id)}>
+                    <MaterialIcons name="delete" size={24} color={colors.danger} />
+                  </TouchableOpacity>
+                </View>
+              </Card>
+            ))}
+          </View>
+        )}
+
+        {/* Roommates' Chores */}
+        {othersChores.length > 0 && (
+          <View style={styles.sectionContainer}>
+            <Text h4 style={styles.sectionTitle}>Roommates' Chores</Text>
+            {othersChores.map(chore => (
+              <Card key={chore.id} containerStyle={styles.choreCard}>
+                <View style={styles.choreRow}>
+                  <MaterialIcons name={chore.completed ? 'check-circle' : 'pending-actions'} size={24} color={chore.completed ? colors.success : colors.warning} />
+                  <View style={styles.choreInfo}>
+                    <Text style={[styles.choreName, chore.completed && styles.completedText]}>{chore.name}</Text>
+                    <Text style={styles.choreAssignee}>{chore.assignee} • {chore.dueDate}</Text>
+                  </View>
+                </View>
+              </Card>
+            ))}
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  addButton: {
-    margin: 15,
-  },
-  overlay: {
-    width: 300,
-    padding: 20,
-  },
-  cancelButton: {
-    marginTop: 10,
-  },
+  container: { flex: 1, backgroundColor: colors.primaryLight },
+  scrollView: { flex: 1, paddingHorizontal: spacing.lg },
+  statsContainer: { flexDirection: 'row', marginVertical: spacing.lg, gap: spacing.md },
+  statBox: { flex: 1, backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.md, alignItems: 'center' },
+  statValue: { color: colors.primary, fontSize: 20, fontWeight: '700', marginVertical: spacing.xs },
+  statLabel: { color: colors.gray[600], fontSize: 11 },
+  formContainer: { backgroundColor: colors.white, borderRadius: borderRadius.lg, padding: spacing.lg, marginBottom: spacing.lg },
+  sectionTitle: { color: colors.text, marginBottom: spacing.md, fontWeight: '700' },
+  inputContainer: { marginBottom: spacing.md },
+  addButton: { backgroundColor: colors.primary, borderRadius: borderRadius.lg, paddingVertical: spacing.md },
+  sectionContainer: { marginBottom: spacing.lg },
+  choreCard: { borderRadius: borderRadius.lg, marginBottom: spacing.md, padding: spacing.md },
+  choreRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  choreInfo: { flex: 1 },
+  choreName: { color: colors.text, fontSize: 14, fontWeight: '600' },
+  choreDate: { color: colors.gray[500], fontSize: 12, marginTop: spacing.xs },
+  choreAssignee: { color: colors.gray[500], fontSize: 12, marginTop: spacing.xs },
+  completedText: { textDecorationLine: 'line-through', color: colors.gray[400] },
 });
 
 export default ChoresScreen;

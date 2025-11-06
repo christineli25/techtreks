@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "front-end-mobile",
-    "slug": "front-end-mobile",
+    "name": "TechTreksApp",
+    "slug": "TechTreksApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontendmobile",
+    "scheme": "techtreksapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
