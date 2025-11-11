@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Input, Button, Text, CheckBox } from '@rneui/themed';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors, spacing, borderRadius } from '../constants/colors';
+import { Button, CheckBox, Input, Text } from '@rneui/themed';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { borderRadius, colors, spacing } from '../constants/colors';
 
 const LoginScreen = ({ navigation }) => {
   const [isSignUp, setIsSignUp] = useState(false);

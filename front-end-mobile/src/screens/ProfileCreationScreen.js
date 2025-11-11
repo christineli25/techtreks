@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Input, Button, Text } from '@rneui/themed';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Button, Input, Text } from '@rneui/themed';
 import * as ImagePicker from 'expo-image-picker';
-import { colors, spacing, borderRadius } from '../constants/colors';
+import { useState } from 'react';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { borderRadius, colors, spacing } from '../constants/colors';
 
 const ProfileCreationScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({

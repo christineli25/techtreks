@@ -1,16 +1,16 @@
+import { MaterialIcons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ThemeProvider } from '@rneui/themed';
 import { StatusBar } from 'expo-status-bar';
-import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from './src/constants/colors';
-import LoginScreen from './src/screens/LoginScreen';
-import DashboardScreen from './src/screens/DashboardScreen';
-import ProfileCreationScreen from './src/screens/ProfileCreationScreen';
 import ChoresScreen from './src/screens/ChoresScreen';
-import PaymentsScreen from './src/screens/PaymentsScreen';
+import DashboardScreen from './src/screens/DashboardScreen';
 import GroceriesScreen from './src/screens/GroceriesScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import PaymentsScreen from './src/screens/PaymentsScreen';
+import HouseSetupScreen from './src/screens/HouseSetupScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,15 +24,13 @@ function MainTabs() {
           let iconName;
           
           if (route.name === 'Dashboard') {
-            iconName = focused ? 'dashboard' : 'dashboard-outline';
+            iconName = 'dashboard';
           } else if (route.name === 'Groceries') {
-            iconName = focused ? 'shopping-cart' : 'shopping-cart-checkout';
+            iconName = 'shopping-cart';
           } else if (route.name === 'Chores') {
-            iconName = focused ? 'assignment' : 'assignment-turned-in';
+            iconName = 'assignment';
           } else if (route.name === 'Payments') {
-            iconName = focused ? 'credit-card' : 'credit-card-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
+            iconName = 'credit-card';
           }
           
           return <MaterialIcons name={iconName} size={size} color={color} />;
@@ -81,11 +79,6 @@ function MainTabs() {
         component={PaymentsScreen}
         options={{ title: 'Payments' }}
       />
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileCreationScreen}
-        options={{ title: 'Profile' }}
-      />
     </Tab.Navigator>
   );
 }
@@ -96,18 +89,24 @@ export default function App() {
       <NavigationContainer>
         <StatusBar style="auto" />
         <Stack.Navigator 
-          initialRouteName="MainTabs"
+          initialRouteName="Login"
           screenOptions={{
             headerShown: false,
           }}
         >
           <Stack.Screen 
-            name="MainTabs" 
-            component={MainTabs}
-          />
-          <Stack.Screen 
             name="Login" 
             component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="HouseSetup" 
+            component={HouseSetupScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen 
+            name="MainTabs" 
+            component={MainTabs}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
